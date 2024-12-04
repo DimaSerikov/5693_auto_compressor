@@ -9,10 +9,9 @@ async function processFolder(folderPath) {
 
   try {
     const items = await fsPromises.readdir(folderPath, { withFileTypes: true });
-    
     for (const item of items) {
       const itemPath = path.join(folderPath, item.name);
-      
+
       if (item.isDirectory()) {
         await processFolder(itemPath);
       } else {
@@ -26,6 +25,11 @@ async function processFolder(folderPath) {
 
 async function processFile(filePath) {
   const gzFilePath = `${filePath}.gz`;
+
+  if (filePath.endsWith('.gz')) {
+    console.log(`Skipping file: ${filePath}`);
+    return;
+  }
 
   try {
     const fileStats = await fsPromises.stat(filePath);
@@ -52,7 +56,7 @@ async function processFile(filePath) {
 
 async function createGzipFile(filePath, gzFilePath) {
   console.log(`Starting compression for: ${filePath}`);
-
+  
   const gzip = zlib.createGzip();
   const source = fs.createReadStream(filePath);
   const destination = fs.createWriteStream(gzFilePath);
